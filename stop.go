@@ -1,6 +1,7 @@
 package metrotransit
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -41,6 +42,23 @@ type StopDeparture struct {
 	VehicleHeading   int               `json:"VehicleHeading"`
 	VehicleLatitude  float32           `json:"VehicleLatitude"`
 	VehicleLongitude float32           `json:"VehicleLongitude"`
+}
+
+func (d *StopDeparture) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{}
+	m["actual"] = d.Actual
+	m["block_number"] = d.BlockNumber
+	m["departure_text"] = d.DepartureText
+	m["departure_time"] = d.DepartureTime
+	m["description"] = d.Description
+	m["gate"] = d.Gate
+	m["route"] = d.Route
+	m["route_direction"] = d.RouteDirection
+	m["terminal"] = d.Terminal
+	m["vehicle_heading"] = d.VehicleHeading
+	m["vehicle_latitude"] = d.VehicleLatitude
+	m["vehicle_longitude"] = d.VehicleLongitude
+	return json.Marshal(m)
 }
 
 type jsonDepartureTime struct {
