@@ -14,8 +14,8 @@ type mockDS struct{}
 func (mockDS *mockDS) GetStopDetails(stopID int) (*metrotransit.Details, error) {
 	var stop metrotransit.Details
 	switch stopID {
-	case 5611:
-		stop.Name = "Victoria St & Idaho Ave"
+	case 1000:
+		stop.Name = "50th St W & Upton Ave S"
 	case 17946:
 		stop.Name = "Hennepin Ave & 7th St S"
 	}
@@ -23,7 +23,7 @@ func (mockDS *mockDS) GetStopDetails(stopID int) (*metrotransit.Details, error) 
 }
 func (mockDS *mockDS) GetStopDepartures(stopID int) (*[]metrotransit.Departure, error) {
 	switch stopID {
-	case 5611:
+	case 1000:
 		return &[]metrotransit.Departure{
 			{},
 		}, nil
@@ -47,13 +47,13 @@ var _ = Describe("Metrotransit", func() {
 			})
 		})
 
-		Context("with valid parameters stopID=5611", func() {
-			d, err := env.GetDepartures(5611)
+		Context("with valid parameters stopID=1000", func() {
+			d, err := env.GetDepartures(1000)
 			It("should not error", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 			})
 			It("should have correct name", func() {
-				Expect(d.Details.Name).To(Equal("Victoria St & Idaho Ave"))
+				Expect(d.Details.Name).To(Equal("50th St W & Upton Ave S"))
 			})
 			It("should have non empty departures", func() {
 				Expect(d.Departures).ShouldNot(BeEmpty())
