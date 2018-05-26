@@ -15,8 +15,8 @@ import (
 
 // Datastore represents the expected interface for the underlying data
 type Datastore interface {
-	GetStopDetails(stopID int) (*StopDetails, error)
-	GetStopDepartures(stopID int) (*[]StopDeparture, error)
+	GetStopDetails(stopID int) (*Details, error)
+	GetStopDepartures(stopID int) (*[]Departure, error)
 }
 
 type defaultDatastore struct {
@@ -47,21 +47,21 @@ func InitDefaultDatastore(Host string, Port string, User string, Password string
 	}, nil
 }
 
-func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*StopDetails, error) {
+func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*Details, error) {
 	var (
-		stop                 StopDetails
-		dbStopID             sql.NullInt64
-		dbStopCode           sql.NullString
-		dbStopName           sql.NullString
-		dbStopDesc           sql.NullString
-		dbStopLat            sql.NullFloat64
-		dbStopLon            sql.NullFloat64
+		stop                 Details
+		dbID                 sql.NullInt64
+		dbCode               sql.NullString
+		dbName               sql.NullString
+		dbDescription        sql.NullString
+		dbLatitude           sql.NullFloat64
+		dbLongitude          sql.NullFloat64
 		dbZoneID             sql.NullString
-		dbStopURL            sql.NullString
+		dbURL                sql.NullString
 		dbLocationType       sql.NullInt64
 		dbWheelchairBoarding sql.NullInt64
 	)
-	err := defaultDatastore.db.QueryRow("select * from mt.stops where stop_id = $1", stopID).Scan(&dbStopID, &dbStopCode, &dbStopName, &dbStopDesc, &dbStopLat, &dbStopLon, &dbZoneID, &dbStopURL, &dbLocationType, &dbWheelchairBoarding)
+	err := defaultDatastore.db.QueryRow("select * from mt.stops where stop_id = $1", stopID).Scan(&dbID, &dbCode, &dbName, &dbDescription, &dbLatitude, &dbLongitude, &dbZoneID, &dbURL, &dbLocationType, &dbWheelchairBoarding)
 	switch {
 	case err == sql.ErrNoRows:
 		return nil, errors.New("no stop with that ID")
@@ -69,22 +69,22 @@ func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*StopDetai
 		return nil, err
 	}
 
-	stop.StopID = dbStopID.Int64
-	stop.StopCode = dbStopCode.String
-	stop.StopName = dbStopName.String
-	stop.StopDesc = dbStopDesc.String
-	stop.StopLat = dbStopLat.Float64
-	stop.StopLon = dbStopLon.Float64
+	stop.ID = dbID.Int64
+	stop.Code = dbCode.String
+	stop.Name = dbName.String
+	stop.Description = dbDescription.String
+	stop.Latitude = dbLatitude.Float64
+	stop.Longitude = dbLongitude.Float64
 	stop.ZoneID = dbZoneID.String
-	stop.StopURL = dbStopURL.String
+	stop.URL = dbURL.String
 	stop.LocationType = dbLocationType.Int64
 	stop.WheelchairBoarding = dbWheelchairBoarding.Int64
 
 	return &stop, nil
 }
 
-func (defaultDatastore *defaultDatastore) GetStopDepartures(stopID int) (*[]StopDeparture, error) {
-	departures := &[]StopDeparture{}
+func (defaultDatastore *defaultDatastore) GetStopDepartures(stopID int) (*[]Departure, error) {
+	departures := &[]Departure{}
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://svc.metrotransit.org/NexTrip/%d?format=json", stopID), nil)
 	if err != nil {

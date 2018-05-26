@@ -11,24 +11,24 @@ import (
 
 type mockDS struct{}
 
-func (mockDS *mockDS) GetStopDetails(stopID int) (*metrotransit.StopDetails, error) {
-	var stop metrotransit.StopDetails
+func (mockDS *mockDS) GetStopDetails(stopID int) (*metrotransit.Details, error) {
+	var stop metrotransit.Details
 	switch stopID {
 	case 5611:
-		stop.StopName = "Victoria St & Idaho Ave"
+		stop.Name = "Victoria St & Idaho Ave"
 	case 17946:
-		stop.StopName = "Hennepin Ave & 7th St S"
+		stop.Name = "Hennepin Ave & 7th St S"
 	}
 	return &stop, nil
 }
-func (mockDS *mockDS) GetStopDepartures(stopID int) (*[]metrotransit.StopDeparture, error) {
+func (mockDS *mockDS) GetStopDepartures(stopID int) (*[]metrotransit.Departure, error) {
 	switch stopID {
 	case 5611:
-		return &[]metrotransit.StopDeparture{
+		return &[]metrotransit.Departure{
 			{},
 		}, nil
 	case 17946:
-		return &[]metrotransit.StopDeparture{
+		return &[]metrotransit.Departure{
 			{},
 		}, nil
 	}
@@ -52,8 +52,8 @@ var _ = Describe("Metrotransit", func() {
 			It("should not error", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 			})
-			It("should have correct description", func() {
-				Expect(d.Description).To(Equal("Victoria St & Idaho Ave"))
+			It("should have correct name", func() {
+				Expect(d.Details.Name).To(Equal("Victoria St & Idaho Ave"))
 			})
 			It("should have non empty departures", func() {
 				Expect(d.Departures).ShouldNot(BeEmpty())
@@ -65,8 +65,8 @@ var _ = Describe("Metrotransit", func() {
 			It("should not error", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 			})
-			It("should have correct description", func() {
-				Expect(d.Description).To(Equal("Hennepin Ave & 7th St S"))
+			It("should have correct name", func() {
+				Expect(d.Details.Name).To(Equal("Hennepin Ave & 7th St S"))
 			})
 			It("should have non empty departures", func() {
 				Expect(d.Departures).ShouldNot(BeEmpty())

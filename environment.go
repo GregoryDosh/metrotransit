@@ -17,11 +17,11 @@ func (env *Env) GetDepartures(stopID int) (*Stop, error) {
 	if stopID <= 0 {
 		return stop, errors.New("invalid stopID")
 	}
-	stopDetails, err := env.DS.GetStopDetails(stopID)
+	sd, err := env.DS.GetStopDetails(stopID)
 	if err != nil {
 		return nil, err
 	}
-	stop.Description = stopDetails.StopName
+	stop.Details = *sd
 
 	stopDepartures, err := env.DS.GetStopDepartures(stopID)
 	if err != nil {

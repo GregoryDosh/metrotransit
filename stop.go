@@ -10,26 +10,26 @@ import (
 // Stop holds the information about a MetroTransit Stop, including Departures,
 // StopID, Description, and UpdateTime
 type Stop struct {
-	Departures  []StopDeparture `json:"departures"`
-	StopID      int             `json:"stop_id"`
-	Description string          `json:"description"`
-	UpdateTime  time.Time       `json:"update_time"`
+	Departures []Departure `json:"departures"`
+	Details    Details     `json:"stop_details"`
+	StopID     int         `json:"stop_id"`
+	UpdateTime time.Time   `json:"update_time"`
 }
 
-type StopDetails struct {
-	StopID             int64
-	StopCode           string
-	StopName           string
-	StopDesc           string
-	StopLat            float64
-	StopLon            float64
-	ZoneID             string
-	StopURL            string
-	LocationType       int64
-	WheelchairBoarding int64
+type Details struct {
+	ID                 int64   `json:"id"`
+	Code               string  `json:"code"`
+	Name               string  `json:"name"`
+	Description        string  `json:"description"`
+	Latitude           float64 `json:"latitude"`
+	Longitude          float64 `json:"longitude"`
+	ZoneID             string  `json:"zone_id"`
+	URL                string  `json:"url"`
+	LocationType       int64   `json:"location_type"`
+	WheelchairBoarding int64   `json:"wheelchair_boarding"`
 }
 
-type StopDeparture struct {
+type Departure struct {
 	Actual           bool              `json:"Actual"`
 	BlockNumber      int               `json:"BlockNumber"`
 	DepartureText    string            `json:"DepartureText"`
@@ -40,11 +40,11 @@ type StopDeparture struct {
 	RouteDirection   string            `json:"RouteDirection"`
 	Terminal         string            `json:"Terminal"`
 	VehicleHeading   int               `json:"VehicleHeading"`
-	VehicleLatitude  float32           `json:"VehicleLatitude"`
-	VehicleLongitude float32           `json:"VehicleLongitude"`
+	VehicleLatitude  float64           `json:"VehicleLatitude"`
+	VehicleLongitude float64           `json:"VehicleLongitude"`
 }
 
-func (d *StopDeparture) MarshalJSON() ([]byte, error) {
+func (d *Departure) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{}
 	m["actual"] = d.Actual
 	m["block_number"] = d.BlockNumber
