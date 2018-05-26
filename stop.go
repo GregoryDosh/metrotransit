@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// Stop holds the information about a MetroTransit Stop, including Departures,
-// StopID, Description, and UpdateTime
+// Stop holds the information about a MetroTransit Stop
 type Stop struct {
 	Departures []Departure `json:"departures"`
 	Details    Details     `json:"stop_details"`
@@ -16,6 +15,7 @@ type Stop struct {
 	UpdateTime time.Time   `json:"update_time"`
 }
 
+// Details holds the stop specific information.
 type Details struct {
 	ID                 int64   `json:"id"`
 	Code               string  `json:"code"`
@@ -29,6 +29,7 @@ type Details struct {
 	WheelchairBoarding int64   `json:"wheelchair_boarding"`
 }
 
+// Departure holds information about one particular bus
 type Departure struct {
 	Actual           bool              `json:"Actual"`
 	BlockNumber      int               `json:"BlockNumber"`
@@ -44,6 +45,7 @@ type Departure struct {
 	VehicleLongitude float64           `json:"VehicleLongitude"`
 }
 
+// MarshalJSON implemented to correctly snake_case the json output.
 func (d *Departure) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{}
 	m["actual"] = d.Actual
@@ -65,6 +67,7 @@ type jsonDepartureTime struct {
 	time.Time
 }
 
+// UnmarshalJSON used to convert odd date format into a date format Go can recognize
 func (d *jsonDepartureTime) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	if len(s) != 30 {

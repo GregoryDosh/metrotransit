@@ -19,13 +19,14 @@ type Datastore interface {
 	GetStopDepartures(stopID int) (*[]Departure, error)
 }
 
-type defaultDatastore struct {
-	db         *sql.DB
-	httpclient *http.Client
+// DefaultDatastore is an implementation of the Datastore with an underlying data structure of PostgreSQL & an HTTP Client
+type DefaultDatastore struct {
+	DB         *sql.DB
+	HTTPClient *http.Client
 }
 
 // InitDefaultDatastore creates and sets up the default PostgreSQL & http client
-func InitDefaultDatastore(Host string, Port string, User string, Password string, Database string, SSLMode string) (*defaultDatastore, error) {
+func InitDefaultDatastore(Host string, Port string, User string, Password string, Database string, SSLMode string) (*DefaultDatastore, error) {
 	if Host == "" || Port == "" || User == "" ||
 		Password == "" || Database == "" {
 		return nil, errors.New("all fields must be set")
@@ -39,15 +40,16 @@ func InitDefaultDatastore(Host string, Port string, User string, Password string
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
-	return &defaultDatastore{
-		db: db,
-		httpclient: &http.Client{
+	return &DefaultDatastore{
+		DB: db,
+		HTTPClient: &http.Client{
 			Timeout: time.Second * 10,
 		},
 	}, nil
 }
 
-func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*Details, error) {
+// GetStopDetails pulls the stop details from a PostgreSQL table named `mt.stops`.
+func (DefaultDatastore *DefaultDatastore) GetStopDetails(stopID int) (*Details, error) {
 	var (
 		stop                 Details
 		dbID                 sql.NullInt64
@@ -61,7 +63,8 @@ func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*Details, 
 		dbLocationType       sql.NullInt64
 		dbWheelchairBoarding sql.NullInt64
 	)
-	err := defaultDatastore.db.QueryRow("select * from mt.stops where stop_id = $1", stopID).Scan(&dbID, &dbCode, &dbName, &dbDescription, &dbLatitude, &dbLongitude, &dbZoneID, &dbURL, &dbLocationType, &dbWheelchairBoarding)
+	// Should parameterize this in the future
+	err := DefaultDatastore.DB.QueryRow("select * from mt.stops where stop_id = $1", stopID).Scan(&dbID, &dbCode, &dbName, &dbDescription, &dbLatitude, &dbLongitude, &dbZoneID, &dbURL, &dbLocationType, &dbWheelchairBoarding)
 	switch {
 	case err == sql.ErrNoRows:
 		return nil, errors.New("no stop with that ID")
@@ -83,7 +86,8 @@ func (defaultDatastore *defaultDatastore) GetStopDetails(stopID int) (*Details, 
 	return &stop, nil
 }
 
-func (defaultDatastore *defaultDatastore) GetStopDepartures(stopID int) (*[]Departure, error) {
+// GetStopDepartures pulls the stop departures from the MetroTransit API.
+func (DefaultDatastore *DefaultDatastore) GetStopDepartures(stopID int) (*[]Departure, error) {
 	departures := &[]Departure{}
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://svc.metrotransit.org/NexTrip/%d?format=json", stopID), nil)
@@ -91,7 +95,7 @@ func (defaultDatastore *defaultDatastore) GetStopDepartures(stopID int) (*[]Depa
 		return departures, err
 	}
 
-	res, err := defaultDatastore.httpclient.Do(req)
+	res, err := DefaultDatastore.HTTPClient.Do(req)
 	if err != nil {
 		return departures, err
 	}

@@ -5,11 +5,12 @@ import (
 	"time"
 )
 
+// Env is a wrapper around the Datastore so that any struct which implements the Datastore functions can be used.
 type Env struct {
 	DS Datastore
 }
 
-// GetDepartures gets the departures from the MetroTransit API
+// GetDepartures combines the departure times & stop information into one struct.
 func (env *Env) GetDepartures(stopID int) (*Stop, error) {
 	stop := &Stop{
 		StopID: stopID,
